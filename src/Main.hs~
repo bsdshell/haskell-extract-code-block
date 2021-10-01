@@ -1,0 +1,814 @@
+-- {{{ begin_fold
+-- script
+-- #!/usr/bin/env runhaskell -i/Users/cat/myfile/bitbucket/haskelllib
+{-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE MultiWayIf #-}
+{-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE NamedFieldPuns #-}
+-- {-# LANGUAGE OverloadedStrings #-}
+-- {-# LANGUAGE DuplicateRecordFields #-} 
+-- import Turtle
+-- echo "turtle"
+
+-- import Data.Set   -- collide with Data.List 
+import Control.Monad
+import Data.Char
+import Data.Typeable (typeOf) -- runtime type checker, typeOf "k"
+import qualified Data.List as L
+import Data.List.Split
+import Data.Time
+import Data.Time.Clock.POSIX
+import System.Directory
+import System.Environment
+import System.Exit
+import System.FilePath.Posix
+import System.IO
+import System.Posix.Files
+import System.Posix.Unistd
+import System.Process
+import Text.Read
+import Text.Regex
+import Text.Regex.Base
+import Text.Regex.Base.RegexLike
+import Text.Regex.Posix
+import Data.IORef 
+import Control.Monad (unless, when)
+import Control.Concurrent
+import Numeric
+import Text.Read(readMaybe)
+import Graphics.Rendering.OpenGL
+
+import qualified Text.Printf as PR
+
+import qualified Text.Regex.TDFA as TD
+
+-- import Data.Array
+-- import Graphics.Rendering.OpenGL as GL 
+-- import Graphics.Rendering.OpenGL.GLU.Matrix as GM  
+-- import qualified Graphics.UI.GLFW as G
+-- import Data.Set(Set) 
+-- import qualified Data.Set as S 
+
+--if (length argList) == 2 
+--then case head argList of 
+--    "svg" -> run cmd >> run "ls" >>= \x -> pp x 
+--            where 
+--                cmd = "pwd" 
+--    "png" ->run cmd >> run ("ls " ++ fn) >>= \x -> pp x  
+--            where 
+--                cmd = "pwd" 
+--    _     -> print "more arg" 
+--else print "Need more arguments" 
+
+--    takeFileName gives "file.ext"
+--    takeDirectory gives "/directory"
+--    takeExtension gives ".ext"
+--    dropExtension gives "/directory/file"
+--    takeBaseName gives "file"
+--    "/directory" </> "file.ext".
+--    "/directory/file" <.> "ext".
+--    "/directory/file.txt" -<.> "ext".
+-- |  end_fold ,}}}
+
+-- BEG Geometry Lib
+import Control.Monad (unless, when)
+import System.Exit
+import System.IO
+import Control.Monad
+import Data.Set(Set) 
+import Data.IORef 
+import qualified Data.Set as S
+import qualified Data.List as DL
+import Data.Typeable (typeOf) -- runtime type checker, typeOf "k"
+import Data.Typeable
+import qualified Text.Printf as PR
+import Text.RawString.QQ (r)         -- Need QuasiQuotes too 
+-- import Language.Haskell.Interpreter 
+
+import GHC.Float.RealFracMethods
+import Control.Monad.State
+import Control.Monad.Identity
+
+-- import Graphics.UI.GLUT
+-- import Graphics.UI.GLUT.Callbacks.Global
+import AronModule hiding (rw)
+-- import AronOpenGL
+import AronDevLib
+
+import qualified Data.Vector as VU       
+-- END Geometry Lib
+
+import AronModule
+import AronDevLib
+import AronAlias
+import AronGraphic
+
+p1 = "/Users/cat/myfile/bitbucket/testfile/test.tex"
+
+-- zo - open
+-- za - close
+
+
+loop::Int -> IO()
+loop x = do
+  if x > 0 then do
+    pp x
+    loop (x - 1)
+    else return ()
+
+
+f::() -> Int -> Int
+f () a = a + 1
+
+infix 1 †
+(†)::Bool -> a -> a -> a
+(True  † a)  _  = a
+(False † _)  b  = b
+
+-- (ρ)::() -> Int -> Int
+-- (ρ) () a = a + 1
+-- f:: (a -> b -> c) -> [(Int, a)] -> [(Int, b)] -> [[c]]
+-- f f z1 z2 =
+--  where
+--    a1 = fst z1
+--    b1 = fst z2
+--    a2 = snd z1
+--    b2 = snd z2
+--    ss = [[(a1, b1, f a2 b2)
+                  
+(⊗)::[a] -> [b] -> [[(Int, Int, (a, b))]]
+(⊗) cx cy = ss
+  where
+    z1 = zip [0..] cx
+    z2 = zip [0..] cy
+    ss = [[let a1 = fst a
+               b1 = fst b
+               a2 = snd a
+               b2 = snd b
+           in (a1, b1, (a2, b2)) | a <- z1] | b <- z2]
+
+ 
+(⊖)::(Int -> Int -> Bool) -> [[(Int, Int, b)]] -> [(Int, Int, b)]
+(⊖) f cx = ls
+  where
+    ls = filter (\(a, b, _) -> f a b) $ join cx
+
+(⊗⊖) :: Int -> Int -> Int
+(⊗⊖) a b = 4114
+
+strToListFloat::String -> [Float]
+strToListFloat s = map(\x -> read x :: Float) $ splitStr "[, ]" s
+
+
+splitListBefore::RegexStr -> [String] -> [[String]]
+splitListBefore rx cx = tx
+  where
+  tup = map(\(n, s) -> if matchTest (mkRegex rx) s then (n, True) else (n, False)) $ zip [0..] cx
+  ft = filter (\(_, t) -> t) tup
+  h = head ft
+  ft' = if fst h /= 0 then (0, True):ft else ft
+  tu = zip (init ft') (tail ft')
+  tu' = map(\(a, b) -> (fst a, fst b)) tu
+  tx = map(\(a, b) -> takeIndexBetweenInc (a, b-1) cx) tu'
+
+  
+validateFormat::String -> Bool
+validateFormat s = if len ls > 1 && (len . sp . head) ls > 2 then True else False
+  where
+    ls = lines s
+    sp e = splitStr ":" e                   
+
+
+sumList::[Int] -> Int -> Int
+sumList [] s = s
+sumList (x:cx) s = if x < 0 then s else sumList cx (s + x)
+
+sumTilNegative::[Int] -> Int
+sumTilNegative = go 0
+  where
+    go !total rest =
+      case rest of
+        [] -> total
+        x:cx
+         | x < 0 -> total
+         | otherwise -> go (total + x) cx
+
+--                 cx       init   sum
+sumUntilNegative2::[Int] -> Int -> Int
+sumUntilNegative2 [] n = n
+sumUntilNegative2 (x:cx) n = sumUntilNegative2 cx (sum n x) 
+  where
+    sum total e =
+      if e < 0 then total
+      else (total + e)     
+    
+-- 10-02-2021
+-- KEY: monad transform
+--
+-- f::(b -> a -> Either b b)
+-- foldl::(a -> a -> a) -> ini -> [a] -> a
+-- foldl(\a acc -> a + acc) ini [1, 2]
+-- foldl(\a acc -> a - acc) 0 [1, 2] => -3
+--
+sumTilNegative'::[Int] -> Int
+sumTilNegative' = foldTerminate f 0
+  where
+    f accum x
+      | x < 0     = Left accum
+      | otherwise = Right (accum + x)
+
+sumTilGreater5::[Int] -> Int
+sumTilGreater5 =
+  foldTerminate f 0
+  where
+    f accum x
+      | x < 5     = Left accum
+      | otherwise = Right (accum + x)
+
+foldTillA::[String] -> String
+foldTillA =
+  foldTerminate f ""
+  where
+    f acc x
+      | x == "A"  = Left acc
+      | otherwise = Right (acc ++ x)
+    
+--          f::(b -> a -> Either b b) go :: b -> [a] -> b
+foldTerminate::(b -> a -> Either b b) -> b -> [a] -> b
+foldTerminate f = go
+  where
+--  go::  b   [a]
+    go !accum rest =
+      case rest of
+        []   -> accum
+        x:cx ->
+          case f accum x of
+            Left accum' -> accum'
+            Right accum' -> go accum' cx 
+
+
+foldTerminate2::(b -> a -> Either b b) -> b -> [a] -> b
+foldTerminate2 f accum list0 =
+  either id id (go accum list0)
+  where
+    go !accum rest = do  -- Either b (), NOT IO ()
+      (x, xs) <-
+        case rest of
+          [] -> Left accum
+          x:xs -> Right (x, xs)
+      accum' <- f accum x
+      go accum' xs
+            
+foldTerm::(b -> a -> Maybe b) -> b -> [a] -> b
+foldTerm f = go
+  where
+    go !accum rest =
+      case rest of
+        []   -> accum
+        x:cx ->
+          case f accum x of
+            Nothing -> accum
+            Just accum' -> go accum' cx
+    
+-- s0 -> s1 -> s2
+--     = do
+--    (a1, s1) <- random s0
+--    (a2, s2) <- random s1
+--    return (a2, s2)
+-- modify'::(Monad m) => (s -> s) -> m (a, s)
+-- newtype State s = StateT s Identity
+-- runStateEither :: StateEither s e a -> s -> m(s, Either e a)
+-- newtype StateEither s e a = StateEither {runStateEither :: s -> m (s, Either e a)}
+
+foldTill::(String -> Bool) -> [String] -> String
+foldTill g =
+  foldTerm f ""
+  where
+    f acc x
+      | g x == True = Nothing
+      | otherwise = Just (acc ++ x)
+    
+f1::Int -> (Int, Int)
+f1 x = let x1 = x + 1
+           x2 = x + 2 in (x1, x2)
+
+f2::Int -> Identity(Int, Int)
+f2 x = do
+  let x1 = x1 + 1
+  let x2 = x1 + 2
+  return $ (x1, x2)
+                         
+f3::Int -> Identity(Int, Int)
+f3 x = do
+  x1 <- return (x + 1)
+  x2 <- return (x + 2)
+  return (x1, x2)
+
+
+-- newtype Identity a = Identity { runIdentity :: a}
+--                                 runIdentity :: Identity a -> a
+
+-- newtype StateT s m a = StateT {runStateT:: s -> m(a, s)}
+--                        runStateT::StateT s m a -> s -> m(a, s)
+--                        StateT s m a => m (a, s)
+--                        s -> m(a, s) => StateT s m a
+--
+--                        StateT(\s -> m (a, s + 1)) => StateT s m a
+--                        runStateT::StateT s m a -> s -> m(a, s)
+
+-- type State s = StateT s Identity
+
+-- modify'::(Monad m) => (s -> s) -> StateT s m ()
+-- evalState::State s a -> s -> a
+-- execState::State s a -> s -> s
+--            ( ↑      )
+--              – - - StateT s Identity a
+--
+foldState::(b -> a -> b) -> b -> [a] -> b
+foldState f accum0 list0 =
+    execState (mapM_ go list0) accum0
+--     go x = (mapM_ modify' (\accum -> f accum x) list0)
+--  execState (mapM_ modify' (\accum -> f accum x) list0) accum0
+  where
+    go x = modify' (\accum -> f accum x)
+--        |----->  State s m () <--------|
+--  go 2 = modify' (\3 -> (+) 3 2) => State 5 m ()
+--                 
+type MyM a = Maybe a
+    
+-- data Either a b = Left a | Right b
+
+-- [{ab}
+-- 
+fun3::String -> Int
+fun3 [] = 0
+fun3 (x:cx) = if x == '[' then 1 + (fun3 cx) else fun3 cx
+
+-- "[]", "[", "]"
+fun4::String -> String -> Bool
+fun4 [] s = len s == 0
+fun4 (x:cx) s = if x == '[' then fun4 cx ('[':s)
+                else (if x == ']' then (if last s == '[' then fun4 cx (init s) else False) else False)
+
+data Person = Person{alive::Bool, age::Int} deriving (Show)
+
+input::String -> String -> Either String Person
+input alive ageStr = do
+  alive <- case readMaybe alive of
+           Nothing -> Left "Invalid Alive"
+           Just x  -> return x
+
+  age <- case readMaybe ageStr of
+           Nothing -> Left "Invalid Age"
+           Just x -> return x
+
+  if age < 0 then Left "Age can not be negative."
+                  else return ()
+
+  return Person{alive, age}
+
+
+removeIndex2::(Int, Int) -> a -> [[a]] -> [[a]]
+removeIndex2 (cInx, rInx) a = undefined
+
+{-|
+
+   @
+   const::a -> b -> a
+   const 2 => 2
+
+   const x :: b -> x
+
+   const 2 => 2
+   else x
+
+
+   [1 2 3]
+   [3 4 5]       c = 1
+   [4 5 9]
+
+   replaceMe p (const 2) cx
+
+   (const 2) :: b -> 2
+
+   replaceMe2d v (c, r) cxx = replaceMe replaceMe c (const (replaceMe c ))
+
+   p == c
+        f x
+        replaceMe r (const v)
+          p == r
+              b -> v
+   @
+-}
+replaceMe p f cx = [if p == i then f x else x | (x, i) <- zip cx [0..]]
+
+replaceMe2d v (c, r) = replaceMe c (replaceMe r (const v))
+
+  
+main = do
+  -- pp "hi"
+  -- pp $ 1 ↑ [1, 2]
+  -- pp $ 2 ↓ [2, 3, 5]
+  -- s <- putStr "proceed continue, continuous, Everret, population 98k"
+  -- case s of
+       -- () -> print "unit type"
+  -- pp $ f () 3
+  -- pp $ ρ [1, 2]
+  -- 3 == 4 ? print "ok" $ print "not"
+  -- let ss = (⊗) [0, 1, 2] [0, 1, 2]
+  -- pre ss
+  -- fl
+  -- pp $ (⊖) (\x y -> x > y) ss
+  -- fl
+  -- pp $ (⊗⊖) 1 1
+  -- pp $ strToListFloat "1 2 3 0.0"
+  -- pp $ takeIndexBetweenInc (3, 4) [0..10]
+  -- ls <- rfl "/tmp/what.org"
+  -- let t = map(\(n, s) -> if matchTest (mkRegex "^\\*\\*\\*") s then (n, s, 1) else (n, s, 0)) $ zip [0..] ls
+  -- let ft = filter(\(n, s, i) -> i == 1) t
+  -- let h = head ft
+  -- let ft' = if t1 h /= 0 then (0, "kk", 1):ft else ft
+  -- fl
+  -- pp t
+  -- pp "ok"
+  -- fl      
+  -- pp ft'
+  -- let tu = zip (init ft') (tail ft')
+  -- let tu' = map(\(a, b) -> (t1 a, t1 b)) tu
+  -- let tx = map(\(a, b) -> takeIndexBetweenInc (a, b-1) ls) tu'
+  -- fl
+  -- pp tu
+  -- fl
+  -- pp tu'
+  
+  -- fl
+  -- pre tx
+  -- let tx' = map(\x -> x ++ [""]) tx
+  -- wfl "/tmp/k.org" $ join tx'
+  -- let sortls = qqsort (\x y -> head x <= head y) tx'
+  -- wfl "/tmp/k1.org" $ join sortls
+  -- pp "ok"
+  -- getTime >>= \x -> printBox 4 [x]
+
+  -- fl
+  -- let str = "mytest_test:*: test it\nline on here"
+  -- pp $ lines str
+  -- pp $ validateFormat str
+  -- let sub = dropEnd 1 $ drop 1 $ show "\\"
+  -- pp $ len sub
+  -- ls <- replaceFileLine "abc" sub  "/tmp/11.x"
+  -- pre ls
+  -- fl
+  -- writeFileList "/tmp/22.x" ls
+  {-|
+  pp "hi"
+  putStrLn $ show $ sumList [1, 2, (-3)] 0
+  pp $ sumTilNegative [1, 2, 99, (-3), 4]
+  pp $ runIdentity $ f3 1
+  fl
+  pp $ runIdentity $ f3 2
+  pp $ foldState (+) 0 [1, 2]
+    
+  -- modifyIORef :: IORef a -> (a -> a) -> IO ()
+  -- modify'     ::(Monad m) => (s -> s) -> StateT s m ()
+  let go f x = modify'(\accum -> f accum x)
+  mapM_ putStrLn ["desiccant", "Bovine -> cattle group and buffaloes or buffalos or bison"]
+  pp "done"
+  ref <- newIORef 3
+  num <- readIORef ref
+  pp num
+  modifyIORef ref (+1)
+  num' <- readIORef ref
+  pp num'
+  pp $ sumUntilNegative2 [1, 2, -1, 4] 0
+  pp $ sumTilGreater5 [5, 6, 7, 1, 9]
+  pp $ foldTillA ["a", "b", "A", "c"]
+  pp $ foldTill (\x -> x == "A") ["a", "b", "A", "Bovine"]
+
+  -- text <- readFile "/tmp/apl.el"
+  -- writeFile "/tmp/x2.x" (unescape text)
+  let skk = unescape "\\x2206"
+  putStrLn skk
+  let ch = chr $ read ("0x" ++ "2206")
+  print [ch]
+  pp $ hexToInt "2206"
+  pp $ intToHex 8710
+  fl
+    
+  pp $ (fun4 "[" "" ) == False
+  pp $ (fun4 "[]" "" ) == True
+  pp $ (fun4 "[[]" "" ) == False
+  pp $ (fun4 "[[]]" "" ) == True
+  pp $ (fun4 "[[[]]" "" ) == False
+  fl  
+  pp $ (isBalanced3 "[" "" ) == False
+  pp $ (isBalanced3 "[]" "" ) == True
+  pp $ (isBalanced3 "[[]" "" ) == False
+  pp $ (isBalanced3 "[[]]" "" ) == True
+  pp $ (isBalanced3 "[[[]]" "" ) == False
+  fl
+  pp $ (isBalanced3 "[{" "" ) == False
+  pp $ (isBalanced3 "[{}]" "" ) == True
+  pp $ (isBalanced3 "[{]}" "" ) == False
+  pp $ (isBalanced3 "{[[]}]" "" ) == False
+  pp $ (isBalanced3 "[[[]]}" "" ) == False
+  fl
+  pp $ input "true" "4"
+  pp $ input "True" "4"
+  print "ok"
+  pp $ showIntAtBaseX 2 intToDigit 10 ""
+  pp $ showIntAtBaseX 10 intToDigit 10 ""
+  pp $ showIntAtBaseX 8 intToDigit 10 ""
+  pp $ showIntAtBaseX 16 intToDigit 32 ""
+  pp $ showIntAtBaseX 16 intToDigit 0 ""
+  pp $ showIntAtBaseX 16 intToDigit (-1) ""
+  -}
+  
+  print "ok"
+  let q1 = Quaternion{a = 1, b = 1, c = 1, d = 1}
+  print q1
+  let uq = conjugateQ q1
+  print $ "uq = " ++ show uq
+  pp "uq * q1"
+  print $ show $ uq * q1
+  print $ show $ unitQ q1
+  print $ show $ qToPureQ q1
+  pp "inverseQ"
+  print $ inverseQ q1
+  print $ show $ q1 * (inverseQ q1)
+  fl
+  let v1 = (Vector3 1.0 1.0 1.0) :: Vector3 GLfloat
+  let v2 = (Vector3 1.0 1.0 1.0) :: Vector3 GLfloat
+  print $ replaceMe 1 (const 2) [1, 1, 1, 1] == [1, 2, 1,1]
+  print $ replaceMe 5 (const 2) [1, 1, 1, 1] == [1, 1, 1, 1]
+  print $ replaceMe2d 5 (2, 1) [[1, 1, 1], [1, 1, 1], [1, 1, 1]] == [[1, 1, 1], [1,1,1], [1,5,1]]
+
+  let fun x = if | x < 0   ->  -1
+                 | x == 0  ->  0
+                 | otherwise -> 1
+
+  print "ok"
+  let ls2 = [[1, 1],
+             [0, 1]
+            ]
+  print $ connectCount ls2 == 3
+  
+  let ls1 = [[0]]
+  print $ connectCount ls1 == 0
+  
+  let ls3 = [[1]]
+  print $ connectCount ls3 == 1
+
+  let title = "xfido"
+  let url = "http://what.com/nice/file.html"
+  pp "none empty title"
+  print $ refillEmptyTitle title url
+  fl
+  pp "empty title"
+  print $ refillEmptyTitle " " url
+  fl
+  pp "not html"
+  let nohtml = "http://what.com/nice/file"
+  print $ refillEmptyTitle " " nohtml
+  fl
+  
+  let nohtml = "http://what.com/nice/file.js"
+  print $ refillEmptyTitle "" nohtml
+  print "--"
+  
+  ls <- readFileList "/tmp/g.x"
+  pre ls
+  let lss = filter (\x -> fst (isUnGuardedRhs x)) ls
+  let lst = filter (\x -> fst (isIdent x)) ls
+  fl
+  pre lss
+  fl
+  pre lst
+  fl
+  -- pre $ findIdentBlock ls
+  fl
+  let zb = allBlocks ls
+  fl
+  fw "zb"
+  pre zb
+
+-- NOTE: It DOES NOT works so far.
+{-|
+-}
+findIdentBlock::[String] -> [String]
+findIdentBlock [] = [] 
+findIdentBlock (x:cs) | fst (isUnGuardedRhs x) = findIdentBlock cs
+                      | fst (isIdent x)        = x : allIdent cs
+                      | isOtherType x    = findIdentBlock cs
+                      | isLeftBracket x  = findIdentBlock cs
+                      | otherwise        = []
+
+allBlocks::[String] -> [[String]]
+allBlocks cx = zb
+  where
+    blocks = blockUnGuardedRhs cx
+    bb = reverse $ blocks ++ [[]]
+    b1 = init bb
+    b2 = tail bb
+    zb = zipWith (\x2 x1 -> dropEnd (len x1) x2) b2 b1
+
+{-|
+   ["a", "ab", "abc"]
+
+   ["a",   "ab"]
+   ["ab", "abc"]
+
+
+   ["", "a", "ab", "abc"]
+
+   ["",  "a", "ab"]
+   ["a", "ab", "abc"]
+
+   ["a" - "", "ab" - "a", "abc" - "ab"]
+
+   ["a", "b", "c"]
+
+   [("ab" - "a"), ("abc" - "ab")]
+   ["b", "c"]
+-}
+blockUnGuardedRhs::[String] -> [[String]]
+blockUnGuardedRhs [] = []
+blockUnGuardedRhs (x:cs) = if bo then let f = innerUnGuardedRhs cs
+                                          n = fst f
+                                          s = snd f
+                                      in if n == 0 then s:blockUnGuardedRhs cs else (x:s):(blockUnGuardedRhs cs)
+                                 else blockUnGuardedRhs cs
+  where
+    bo = fst (isUnGuardedRhs x)
+
+{-|
+   http://localhost/image/hparse.png
+-}
+blockIdent::[String] -> [[String]]
+blockIdent [] = []
+blockIdent (x:cs) = [[]]
+  
+
+innerIdent::[String] -> (Int, [String])
+innerIdent [] = (0, [])
+innerIdent (x:cs) | isLeftBracket x =  ((fst fc) + 1, x:(snd fc))
+                  | isRightBracket x = ((fst fc) - 1, x:(snd fc))
+                  | otherwise = fc
+  where
+    fc = innerIdent cs
+
+{-|
+blockUnGuardedRhsList::[String] -> [[String]]
+blockUnGuardedRhsList [] = []
+blockUnGuardedRhsList (x:cs) = if bo then 
+  where
+    bo = fst (isUnGuardedRhs x) 
+-}  
+innerUnGuardedRhs::[String] -> (Int, [String])
+innerUnGuardedRhs [] = (0, [])
+innerUnGuardedRhs (x:cs) | isLeftBracket x =  ((fst fc) + 1, x:(snd fc))
+                         | isRightBracket x = ((fst fc) - 1, x:(snd fc))
+                         | otherwise = fc
+  where
+    fc = innerUnGuardedRhs cs
+    
+allIdent::[String] -> [String]
+allIdent (x:cs) = if  (not . isLeftBracket) x then x : allIdent cs else  x : findIdentBlock cs
+
+-- ) anything => True
+isRightBracket::String -> Bool
+isRightBracket [] = False
+isRightBracket s = head s' == ')'
+  where
+    s' = trim s
+  
+-- ( anything => True
+isLeftBracket::String -> Bool
+isLeftBracket [] = False
+isLeftBracket s = head s' == '('
+  where
+    s' = trim s
+  
+-- ( MyType => True
+isOtherType::String -> Bool
+isOtherType s = bracket == '(' && isMat
+  where
+    s' = trim s
+    bracket = head s'
+    ts = (trim . tail) s
+    isMat = matchTest (mkRegex "[A-Z][[:alnum:]]+") ts
+
+-- ( Ident  => True
+isIdent::String -> (Bool, Char)
+isIdent s = if len s > 0 then (bo, '(') else (False, '(')
+  where
+    s' = trim s
+    bo = (s' !! 0) == '(' && matchTest (mkRegex "Ident" )  (trim $ drop 1 s')
+
+
+-- ( UnGuardedRhs  => True
+isUnGuardedRhs::String -> (Bool, Char)
+isUnGuardedRhs s = if len s > 0 then (bo, '(') else (False, '(')
+  where
+    s' = trim s
+    bo = (s' !! 0) == '(' && matchTest (mkRegex "UnGuardedRhs" )  (trim $ drop 1 s')
+
+  
+-- | Quaternion Implementation
+data Quaternion = Quaternion{a::Float, b::Float, c::Float, d::Float} deriving (Show)
+
+instance Num Quaternion where
+    (Quaternion a1 b1 c1 d1) + (Quaternion a2 b2 c2 d2) = Quaternion(a1 + a2) (b1 + b2) (c1 + c2) (d1 + d2)
+    (Quaternion a1 b1 c1 d1) - (Quaternion a2 b2 c2 d2) = Quaternion(a1 - a2) (b1 - b2) (c1 - c2) (d1 - d2)
+    (Quaternion a  b  c  d)  * (Quaternion e  f  g  h)  = Quaternion(a*e - b*f - c*g -e*h) (b*e + a*f -e*g + c*h) (c*e + e*f + a*g -b*h) (d*e -c*f + b*g + a*h)
+    abs _                                               = undefined
+    signum _                                            = undefined
+    fromInteger _                                       = undefined
+
+
+{-|
+    === KEY: quaternion conjugate
+
+    \[
+        q  = a + b i + c j + d k \\
+        q* = a - b i - c j - d k \\
+    \]
+-}
+conjugateQ::Quaternion -> Quaternion
+conjugateQ q = Quaternion{a = a q, b = -(b q), c = -(c q), d = -(d q)}
+
+unitQ::Quaternion -> Quaternion
+unitQ q = Quaternion{a = a'/l, b = b'/l, c = c'/l, d = d'/l}
+  where
+    a' = a q
+    b' = b q
+    c' = c q
+    d' = d q
+    l  = sqrt $ a'^2 + b'^2 + c'^2 + d'^2
+    
+qToPureQ::Quaternion -> Quaternion
+qToPureQ q = Quaternion{a = 0, b = b q, c = c q, d = d q}
+
+inverseQ::Quaternion -> Quaternion
+inverseQ q = Quaternion{a = (a q')/ds, b = (b q')/ds, c = (c q')/ds, d = (d q')/ds}
+  where
+    q' = conjugateQ q
+    ds = (a q)^2 + (b q)^2 + (c q)^2 + (d q)^2
+
+normQ::Quaternion -> Float
+normQ q = sqrt $ a'^2 + b'^2 + c'^2 + d'^2
+  where
+    a' = a q
+    b' = b q
+    c' = c q
+    d' = d q
+
+data MyType = T1 (Integer -> Integer)
+
+{-|
+instance Num MyType where
+  ....
+-}
+
+fun1::Integer -> IO()
+fun1 n = print n
+         
+fun2::String -> IO()
+fun2 s = print s
+
+fun33::Integer -> Integer
+fun33 x = x + 1
+
+refillEmptyTitle:: String -> String -> String
+refillEmptyTitle t u = if (null . trim) t then
+                         if (upperStr $ takeEnd 5 u) == ".HTML" then takeName $ dropEnd 5 u else takeName u
+                       else
+                         t
+
+
+
+{-|
+    === KEY: connect island problem
+     0 1 0 0
+     0 1 1 0
+     0 0 0 1
+
+                   (c-1) r
+       (c (r -1))  (c r)     c  (r + 1)
+                   (c+1) r
+
+-}
+connectCount::(Num a, Eq a) => [[a]] -> Int
+connectCount cx = f 0 0 cx
+  where
+    f c r cy = e == 1 ? c1 + c2 + c3 + c4 + 1 $ 0
+      where
+        c1 = c - 1 >= 0 ? (f (c-1) r cy') $ 0
+        c2 = c + 1 <  h ? (f (c+1) r cy') $ 0
+        c3 = r - 1 >= 0 ? (f c (r-1) cy') $ 0
+        c4 = r + 1 <  w ? (f c (r+1) cy') $ 0
+        h = len cy
+        w = len (cy ! 0)
+        cy' = replace2d 0 (c, r) cy
+        e = cy ! c ! r
+        (!) = (!!)
