@@ -74,7 +74,15 @@
 	fun3 x = x + 1
 ```
 
+* Function Implementation in Haskell with **FunBind**
+
 ``` haskell
+    , FunBind
+        ( SrcSpanInfo
+            { srcInfoSpan = SrcSpan "/Users/aaa/myfile/bitbucket/testfile/Main.hs" 12 1 12 13
+            , srcInfoPoints = []
+            }
+        )
         [ Match
             ( SrcSpanInfo
                 { srcInfoSpan = SrcSpan "/Users/aaa/myfile/bitbucket/testfile/Main.hs" 12 1 12 13
@@ -138,6 +146,28 @@
                 )
             ) Nothing
         ]
+```
+
+* Function Signature using **TypeSig** in Haskell
+
+``` haskell
+    , TypeSig
+        ( SrcSpanInfo
+            { srcInfoSpan = SrcSpan "/Users/aaa/myfile/bitbucket/testfile/Main.hs" 8 1 8 25
+            , srcInfoPoints =
+                [ SrcSpan "/Users/aaa/myfile/bitbucket/testfile/Main.hs" 8 5 8 7 ]
+            }
+        )
+        [ Ident
+            ( SrcSpanInfo
+                { srcInfoSpan = SrcSpan "/Users/aaa/myfile/bitbucket/testfile/Main.hs" 8 1 8 5
+                , srcInfoPoints = []
+                }
+            ) "fun2"
+        ]
+		...
+		types
+		...
 ```
 
 * Function depents on other function in Haskell
