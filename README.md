@@ -170,6 +170,20 @@
 		...
 ```
 
+* **TypeSig** and **FunBind**
+
+``` haskell
+    [ TypeSig
+	   (
+	   xxx
+	   )
+    , FunBind
+	   (
+	   xxx
+	   )
+    ]
+```
+
 * Function depents on other function in Haskell
 
 ``` haskell
