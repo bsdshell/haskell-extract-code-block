@@ -187,6 +187,82 @@
 * Function depents on other function in Haskell
 
 ``` haskell
+[ TypeSig
+        [ Ident
+            ( SrcSpanInfo
+            ) "fun"
+        ]
+        , FunBind
+        [ Match
+            ( Ident
+                ( SrcSpanInfo
+                ) "fun"
+            )
+            ( UnGuardedRhs
+                ( InfixApp
+                    ( Paren
+                        ( App
+                            ( Var
+                                ( UnQual
+                                    ( Ident
+                                        ( SrcSpanInfo
+                                        ) "fun2"
+                                    )
+                                )
+                            )
+                        )
+                    )
+                    ( Paren
+                        ( App
+                            ( App
+                                ( Var
+                                    ( UnQual
+                                        ( Ident
+                                            ( SrcSpanInfo
+                                            ) "fun3"
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            ) Nothing
+        ]
+    , TypeSig
+        [ Ident
+            ( SrcSpanInfo
+            ) "fun2"
+        ]
+        , FunBind
+        [ Match
+            ( Ident
+                ( SrcSpanInfo
+                ) "fun2"
+            )
+        ]
+    , TypeSig
+        [ Ident
+            ( SrcSpanInfo
+            ) "fun3"
+        ]
+        , FunBind
+        ( SrcSpanInfo
+        )
+        [ Match
+            ( SrcSpanInfo
+            )
+            ( Ident
+                ( SrcSpanInfo
+                ) "fun3"
+            )
+        ]
+    ]
+
+```
+![fun => fun2 fun3](function_dependency.png)
+
+``` haskell
    fun::Int -> Int 
    fun x = fun2 x
    
