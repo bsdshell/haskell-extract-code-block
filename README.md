@@ -1,6 +1,29 @@
 # haskell-extract-code-block
 ## Extract all code blocks from a file
 
+# Definition of code block
+## code block example 1
+``` haskell
+   ( UnGuardedRhs
+   )
+```
+
+## code block example 2
+``` haskell
+   ( UnGuardedRhs
+     (
+	 )
+   )
+```
+## code block example 3
+``` haskell
+   ( UnGuardedRhs
+     (
+	  []
+	  xx
+	 )
+   )
+```
 # Input
 
 ``` haskell
