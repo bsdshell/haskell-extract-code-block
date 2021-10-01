@@ -67,4 +67,4 @@
 ]
 ```
 
-[code blocks](http://xfido.com/image/extract_code_block.png)
+[code blocks](extract_code_block.png)
